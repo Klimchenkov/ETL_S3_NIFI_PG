@@ -1,0 +1,94 @@
+version: '3.7'
+
+services:
+  s3:
+    container_name: s3
+    image: minio/minio:latest
+    command: server --console-address ":9001" /data/
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_USER}
+      MINIO_ROOT_PASSWORD: ${S3_PASSWORD}
+    volumes:
+      - minio-storage:/data
+
+  createbucket:
+    image: minio/mc
+    container_name: mc
+    depends_on:
+      - s3
+    env_file: '.env'
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc alias set myminio http://s3:9000 ${S3_USER} ${S3_PASSWORD}; /usr/bin/mc mb myminio/${BUCKET_NAME}; /usr/bin/mc policy set public myminio/${BUCKET_NAME}; exit 0; "
+
+  postgres:
+    image: docker.io/postgres:14-alpine
+    restart: unless-stopped
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./initial_tables.sh:/docker-entrypoint-initdb.d/initial_tables.sh
+
+  zookeeper:
+    hostname: myzookeeper
+    container_name: zookeeper
+    image: 'bitnami/zookeeper:3.7.0'
+    restart: on-failure
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  registry:
+    hostname: myregistry
+    container_name: registry
+    image: 'apache/nifi-registry:1.15.0'
+    restart: on-failure
+    ports:
+      - "18080:18080"
+    environment:
+      - LOG_LEVEL=INFO
+      - NIFI_REGISTRY_DB_DIR=/opt/nifi-registry/nifi-registry-current/database
+      - NIFI_REGISTRY_FLOW_PROVIDER=file
+      - NIFI_REGISTRY_FLOW_STORAGE_DIR=/opt/nifi-registry/nifi-registry-current/flow_storage
+    volumes:
+      - ./nifi_registry/database:/opt/nifi-registry/nifi-registry-current/database
+      - ./nifi_registry/flow_storage:/opt/nifi-registry/nifi-registry-current/flow_storage
+
+  nifi:
+    hostname: mynifi
+    container_name: nifi
+    image: 'apache/nifi:1.14.0'
+    restart: on-failure
+    ports:
+      - '8091:8080'
+    environment:
+      - NIFI_WEB_HTTP_PORT=8080
+      - NIFI_CLUSTER_IS_NODE=true
+      - NIFI_CLUSTER_NODE_PROTOCOL_PORT=8082
+      - NIFI_ZK_CONNECT_STRING=myzookeeper:2181
+      - NIFI_ELECTION_MAX_WAIT=30 sec
+      - NIFI_SENSITIVE_PROPS_KEY='12345678901234567890A'
+    healthcheck:
+      test: "${DOCKER_HEALTHCHECK_TEST:-curl localhost:8091/nifi/}"
+      interval: "60s"
+      timeout: "3s"
+      start_period: "5s"
+      retries: 5
+    volumes:
+      - ./nifi/database_repository:/opt/nifi/nifi-current/database_repository
+      - ./nifi/flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
+      - ./nifi/content_repository:/opt/nifi/nifi-current/content_repository
+      - ./nifi/provenance_repository:/opt/nifi/nifi-current/provenance_repository
+      - ./nifi/state:/opt/nifi/nifi-current/state
+      - ./nifi/logs:/opt/nifi/nifi-current/logs
+      - ./nifi/conf:/opt/nifi/nifi-current/conf
+
+volumes:
+  minio-storage:
+  postgres:
