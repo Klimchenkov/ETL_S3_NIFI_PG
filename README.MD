@@ -92,3 +92,8 @@ get_aggregates(<br />tablename varchar(50), <br />agg_column agg_column, <br />d
 > source generate_test_csv.sh
 
 В результате работы скрипта в директории проекта появится файл с $FILENAME, который можно будет использовать в работе пайплайна.
+
+
+## Дамп базы данных 
+
+Дамп находится в файле backup
