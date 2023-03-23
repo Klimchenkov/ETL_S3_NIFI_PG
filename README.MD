@@ -44,19 +44,19 @@ Nifi будет доступен по адресу localhost:8091/nifi
 
 Для получения агрегатных значений создана хранимая процедура: 
 
-get_aggregates(tablename varchar(50), agg_column agg_column, date_start varchar(20), date_end varchar(20), age_start integer, age_end integer, gender gen, start_sum integer, end_sum integer, mcc_id integer)
+get_aggregates(<br />tablename varchar(50), <br />agg_column agg_column, <br />date_start varchar(20), <br />date_end varchar(20), <br />age_start integer, <br />age_end integer, <br />gender gen, <br />start_sum integer, <br />end_sum integer,<br /> mcc_id integer)
 
 Все параметры данной процедуры являются опциональными:
 
 > tablename - название таблицы, в которую будет записан результат<br />
-> agg_column - колонка, по которой будет проводится агрегация. Возможные значения -
-> ('gender', 'mcc_id', 'age', 'month', 'year','amount') по умолчанию агрегация 
-> ведётся по полу 'gender'
-> date_start, date_end - начальная и конечная дата транзакции
-> age_start, age_end - начальный и конечный возраст для группировки
-> start_sum, end_sum - начальная и конечная сумма для группировки
-> gender - пол
-> mcc_id - отрасль
+> agg_column - колонка, по которой будет проводится агрегация. Возможные значения -<br />
+> ('gender', 'mcc_id', 'age', 'month', 'year','amount') по умолчанию агрегация
+> ведётся по полу 'gender'<br />
+> date_start, date_end - начальная и конечная дата транзакции<br />
+> age_start, age_end - начальный и конечный возраст для группировки<br />
+> start_sum, end_sum - начальная и конечная сумма для группировки<br />
+> gender - пол<br />
+> mcc_id - отрасль<br />
 
 Пример вызова процедуры для получения агрегированных значений по возрасту за 2022 год с суммами транзакций от 1000 до 3000, с записью в таблицу aggr_age_2022_1000_3000:
 
@@ -67,10 +67,10 @@ get_aggregates(tablename varchar(50), agg_column agg_column, date_start varchar(
 
 В файле .env необходимо задать переменные окружения: 
 
-> N_CLIENTS - количество клиентов
-> N_TRANSACTIONS - количество транзакций
-> N_MERCHANTS - количество торговых точек
-> FILENAME - название итогового файла
+> N_CLIENTS - количество клиентов<br />
+> N_TRANSACTIONS - количество транзакций<br />
+> N_MERCHANTS - количество торговых точек<br />
+> FILENAME - название итогового файла<br />
 
 После этого необходимо запустить скрипт генерации файла коммандой:
 
