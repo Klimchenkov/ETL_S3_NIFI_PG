@@ -13,7 +13,7 @@ class GenerateTestCSV:
                            (55.726489, 37.655277)])
     MCC_LIST = ['4812', '5912', '5399', '5699', '7991', '5712', '5732', '4900', '5211', '5815', '5719', '7996', '7394', '5541', '5331', '5411', '7399', '7011', '5943', '4111', '5300', '5310', '5942', '5651', '5309', '8999', '7922', '5946', '9311', '5499', '3102', '9402', '5200', '5977', '8220', '5311', '8099', '5511', '5641', '5812', '5999', '5691', '3007', '5192', '5921', '5992', '5451', '5722', '7832', '8299', '5733', '4722', '5532', '5814', '5964', '7997', '5441', '7512', '7999', '5945', '7941', '4511', '4112', '3089', '5941', '4814', '5944', '7299', '6300', '5533', '5713', '4816', '5947', '8021', '9399', '5661'] 
     CLIENT_COLS = ['client_id', 'gender', 'age']
-    MERCHANT_COLS = ['merchant_id', 'latitude', 'longtitude', 'mcc_cd']
+    MERCHANT_COLS = ['merchant_id', 'latitude', 'longitude', 'mcc_id']
     TRANSACTION_COLS = CLIENT_COLS + MERCHANT_COLS + ['transaction_dttm', 'transaction_amt']
     TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
     
@@ -38,7 +38,7 @@ class GenerateTestCSV:
             merchant = list(self.merchants.sample(n=1).values[0])
             transaction = client + merchant
             transaction.append(self._random_time('2022-01-01 00:00:00', '2023-04-01 01:00:00', random.random()))
-            transaction.append(round(random.uniform(100.00, 100000.00),2))
+            transaction.append(round(random.uniform(100.00, 10000.00),2))
             self.transactions.append(tuple(transaction))
         
     def _generate_clients(self):

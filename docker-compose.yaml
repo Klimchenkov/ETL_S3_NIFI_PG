@@ -11,17 +11,12 @@ services:
     environment:
       MINIO_ROOT_USER: ${S3_USER}
       MINIO_ROOT_PASSWORD: ${S3_PASSWORD}
+      MINIO_ACCESS_KEY: minio_admin
+      MINIO_SECRET_KEY: minio_password
     volumes:
       - ./s3-storage:/data
-
-  createbucket:
-    image: minio/mc
-    container_name: mc
-    depends_on:
-      - s3
-    env_file: '.env'
-    entrypoint: >
-      /bin/sh -c " /usr/bin/mc alias set myminio http://s3:9000 ${S3_USER} ${S3_PASSWORD}; /usr/bin/mc mb myminio/${BUCKET_NAME}; /usr/bin/mc policy set public myminio/${BUCKET_NAME}; exit 0; "
+    networks:
+      - nifi_test
 
   postgres:
     image: docker.io/postgres:14-alpine
@@ -37,6 +32,8 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
       - ./initial_tables.sql:/docker-entrypoint-initdb.d/initial_tables.sql
+    networks:
+      - nifi_test
 
   zookeeper:
     hostname: myzookeeper
@@ -45,6 +42,8 @@ services:
     restart: on-failure
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - nifi_test
 
   registry:
     hostname: myregistry
@@ -61,6 +60,8 @@ services:
     volumes:
       - ./nifi_registry/database:/opt/nifi-registry/nifi-registry-current/database
       - ./nifi_registry/flow_storage:/opt/nifi-registry/nifi-registry-current/flow_storage
+    networks:
+      - nifi_test
 
   nifi:
     hostname: mynifi
@@ -76,6 +77,8 @@ services:
       - NIFI_ZK_CONNECT_STRING=myzookeeper:2181
       - NIFI_ELECTION_MAX_WAIT=30 sec
       - NIFI_SENSITIVE_PROPS_KEY='12345678901234567890A'
+    networks:
+      - nifi_test
     healthcheck:
       test: "${DOCKER_HEALTHCHECK_TEST:-curl localhost:8091/nifi/}"
       interval: "60s"
@@ -90,6 +93,13 @@ services:
       - ./nifi/state:/opt/nifi/nifi-current/state
       - ./nifi/logs:/opt/nifi/nifi-current/logs
       - ./nifi/conf:/opt/nifi/nifi-current/conf
+      - ./nifi/jdbc:/opt/nifi/nifi-current/jdbc
+      - ./nifi/credentials:/opt/nifi/nifi-current/credentials
 
 volumes:
   postgres:
+
+
+networks:
+  nifi_test:
+    driver: bridge
