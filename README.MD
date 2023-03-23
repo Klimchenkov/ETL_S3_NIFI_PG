@@ -48,7 +48,7 @@ get_aggregates(tablename varchar(50), agg_column agg_column, date_start varchar(
 
 Все параметры данной процедуры являются опциональными:
 
-> tablename - название таблицы, в которую будет записан результат\n
+> tablename - название таблицы, в которую будет записан результат<br />
 > agg_column - колонка, по которой будет проводится агрегация. Возможные значения -
 > ('gender', 'mcc_id', 'age', 'month', 'year','amount') по умолчанию агрегация 
 > ведётся по полу 'gender'
