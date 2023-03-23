@@ -63,6 +63,21 @@ get_aggregates(<br />tablename varchar(50), <br />agg_column agg_column, <br />d
 > call get_aggregates(tablename => 'aggr_age_2022_1000_3000', agg_column => 'age', 
 > date_start => '2022-01-01', date_end => '2022-12-21', start_sum => 1000, end_sum =>3000)
 
+Пример вызова процедуры для получения агрегированных значений по месяцам для клиентов возрастом от 30 до 45 лет:
+
+> call get_aggregates(tablename => 'aggr_month_age_30_to_45', agg_column => 'month', 
+> age_start => 30, age_end => 45)
+
+Пример для агрегации транзакций по полу для отрасли 4816:
+
+> call get_aggregates(tablename => 'aggr_gender_mcc_4816 ', agg_column => 'gender', 
+> mcc_id => 4816)
+
+Пример для агрегации по отрасли для клиентов - женщин:
+
+> call get_aggregates(tablename => 'aggr_mcc_females ', agg_column => 'mcc_id', 
+> gender => 'f')
+
 ## Генерация файла с тестовыми данными
 
 В файле .env необходимо задать переменные окружения: 
